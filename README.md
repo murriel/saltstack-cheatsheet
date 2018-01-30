@@ -1,17 +1,15 @@
 # SaltStack Cheat Sheet
-
+forked from [harkx/saltstack-cheatsheet](https://github.com/harkx/saltstack-cheatsheet)
 SaltStack Cheat Sheet .. My collection of often used commands on my Salt master.
 
 This list is partly inspired by the fine lists on:
+* https://github.com/hbokh/awesome-saltstack
 * http://www.xenuser.org/saltstack-cheat-sheet/
 * https://github.com/saltstack/salt/wiki/Cheat-Sheet
 
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
 - [SaltStack Cheat Sheet](#saltstack-cheat-sheet)
-- [First things first : Documentation](#documentation)
-  - [Documentation on the system](#documentation-on-the-system)
-  - [Documentation on the web](#documentation-on-the-web)
 - [Minions](#minions)
   - [Minion status](#minion-status)
   - [Target minion with state files](#target-minion-with-state-files)
@@ -23,27 +21,31 @@ This list is partly inspired by the fine lists on:
   - [Check status of a service and manipulate services](#check-status-of-a-service-and-manipulate-services)
   - [Network](#network)
 - [Salt Cloud](#salt-cloud)
+- [First things first : Documentation](#documentation)
+  - [Documentation on the system](#documentation-on-the-system)
+  - [Documentation on the web](#documentation-on-the-web)
 
-# Documentation
-This is important because the help system is very good.
-
-## Documentation on the system
-```
-salt '*' sys.doc         # output sys.doc (= all documentation)
-salt '*' sys.doc pkg     # only sys.doc for pkg module
-salt '*' sys.doc network # only sys.doc for network module
-salt '*' sys.doc system  # only sys.doc for system module
-salt '*' sys.doc status  # only sys.doc for status module
-```
-
-## Documentation on the web
-- SaltStack documentation: http://docs.saltstack.com/en/latest/
-- Salt-Cloud: http://docs.saltstack.com/en/latest/topics/cloud/
-- Jobs: http://docs.saltstack.com/en/latest/topics/jobs/
+# General Notes
+- If you are not logged in as root and if you do not have an alternate user configured with permissions to run salt, then you will need to run 'sudo' for most of the commands below.
 
 # Minions
 
-## Minion status
+## Adding Minions
+
+- If master is not named "salt", must change the salt master in /etc/salt/minion on the minion and ensure that the salt master can be discovered
+- Ports 4505 and 4506 should be open on the master
+
+## Salt-Key
+The minion sends over the public key for the keypair generated when the salt minion is installed. The salt master must accept this public key before it is able to manage the minion.
+
+```
+salt-key -L # List salt key registration requests
+salt-key -A # Accept all key requests
+salt-key -a minion_id # Accept single minion's request
+salt-key -d minion_id # Remove minion's key
+```
+
+## Minion Status
 You can also use several commands to check if minions are alive and kicking but I prefer manage.status/up/down.
 
 ```
@@ -58,12 +60,23 @@ salt '*' test.ping      # Use test module to check if minion is up and respondin
 
 ## Target minion with state files
 Apply a specific state file to a (group of..) minion(s). Do not use the .sls extension. (just like in the state files!)
+The salt master will use the file_roots directory defined in /etc/salt/master. If none are defined, then /srv/salt is used by default.
 
 ```
-salt '*' state.sls mystatefile           # mystatefile.sls will be applied to *
-salt 'minion1' state.sls prod.somefile  # prod/somefile.sls will be applied to minion1
+salt '*' state.apply mystatefile           # mystatefile.sls will be applied to *
+salt 'minion1' state.apply prod.somefile  # prod/somefile.sls will be applied to minion1
 ```
 
+### Some common flags
+- Append 'test=True' at the end of the command to run a test
+
+## Minion Command Examples
+- Commands can be run directly on salt minions using Salt's remote execution features. Note that there may be some instances where using built in salt modules may be a better approach than running the command directly.
+- Also note that you should avoid commands that require interactive input
+
+```
+salt '*' cmd.run 'ls -al /home/' # Execute a command on the target minion. Runs as root by default.
+```
 ## Grains
 List all grains on all minions
 ```
@@ -142,3 +155,27 @@ salt-cloud -d my-vm-name                      # destroy the my-vm-name virtual m
 salt-cloud -u                                 # Update salt-bootstrap to latest develop version on GitHub.
 ```
 
+# Important files and configs
+### Configs
+```
+/etc/salt/minion
+/etc/salt/master
+/etc/salt/minion_id
+```
+
+# Documentation
+This is important because the help system is very good.
+
+## Documentation on the system
+```
+salt '*' sys.doc         # output sys.doc (= all documentation)
+salt '*' sys.doc pkg     # only sys.doc for pkg module
+salt '*' sys.doc network # only sys.doc for network module
+salt '*' sys.doc system  # only sys.doc for system module
+salt '*' sys.doc status  # only sys.doc for status module
+```
+
+## Documentation on the web
+- SaltStack documentation: http://docs.saltstack.com/en/latest/
+- Salt-Cloud: http://docs.saltstack.com/en/latest/topics/cloud/
+- Jobs: http://docs.saltstack.com/en/latest/topics/jobs/
