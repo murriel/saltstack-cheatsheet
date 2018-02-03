@@ -112,6 +112,11 @@ salt 'minion-x-*' system.reboot  # Let's reboot all the minions that match minio
 salt '*' status.uptime           # Get the uptime of all our minions
 ```
 
+## Doing things
+```
+salt-cp 'target' filename /path/to/file # Copy a file directly to a target server. one-off operation. if path specified is a directory, file will copy to the directory. Full path can be specified to rename file during copy. existing files will be overwritten.
+```
+
 ## Packages
 ```
 salt '*' pkg.list_upgrades             # get a list of packages that need to be upgrade
