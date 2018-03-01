@@ -54,17 +54,19 @@ salt-run manage.up      # Any minions that are up?
 salt-run manage.down    # Any minions that are down?
 salt-run manage.alived  # Show all alive minions
 salt '*' test.version   # Display salt version
-salt '*' test.ping      # Use test module to check if minion is up and responding.
-                        # (Not an ICMP ping!)
+salt '*' test.ping      # Use test module to check if minion is up and responding. (Not an ICMP ping!)
+
 ```
 
-## Target minion with state files
+## Target minions with state files
 Apply a specific state file to a (group of..) minion(s). Do not use the .sls extension. (just like in the state files!)
 The salt master will use the file_roots directory defined in /etc/salt/master. If none are defined, then /srv/salt is used by default.
 
 ```
 salt '*' state.apply mystatefile           # mystatefile.sls will be applied to *
 salt 'minion1' state.apply prod.somefile  # prod/somefile.sls will be applied to minion1
+salt 'G@os:Debian and webser* or E@db.*' test.ping # targeting with a grain or id or both. G=grain, E=regex
+
 ```
 
 ### Some common flags
