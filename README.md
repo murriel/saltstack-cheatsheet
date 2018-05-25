@@ -115,10 +115,12 @@ salt '*' status.uptime           # Get the uptime of all our minions
 ```
 
 ## Doing things
+Copy a file directly to a target server. one-off operation. if path specified is a directory, file will copy to the directory. Full path can be specified to rename file during copy. existing files will be overwritten. use `chunked` to copy an entire directory
 ```
-salt-cp 'target' filename /path/to/file # Copy a file directly to a target server. one-off operation. if path specified is a directory, file will copy to the directory. Full path can be specified to rename file during copy. existing files will be overwritten.
-
-example: salt-cp dev-03 config /path/to/config
+examples:
+salt-cp 'target' filename /path/to/file
+salt-cp dev-03 config /path/to/config
+salt-cp *dev-103* /srv/pillar /mindshow/salt/pillar --chunked -v
 ```
 
 ## Packages
